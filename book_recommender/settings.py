@@ -29,8 +29,7 @@ SECRET_KEY = 'django-insecure-lk2v@_b64g3)jx@u-78@&0x%uv&up@*d^xp9ien9q7zt^-)g6y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
 
 # Application definition
 
@@ -81,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'book_recommender.wsgi.application'
+WSGI_APPLICATION = 'vercel_app.wsgi.application'
 
 
 # Database
