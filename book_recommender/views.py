@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from book_recommender.models import Book
+from .models import Book
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -14,6 +14,7 @@ def signup(request):
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
         response_data = {
+            'status': 'success',
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
@@ -22,29 +23,33 @@ def signup(request):
 
 @api_view(['POST'])
 def login(request):
-    username = request.data.get('username')
+    email = request.data.get('email')
     password = request.data.get('password')
-    user = User.objects.filter(username=username).first()
+    user = User.objects.filter(email=email).first()
     if user is None or not user.check_password(password):
-        return Response({'error': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Invalid email or password.'}, status=status.HTTP_400_BAD_REQUEST)
     refresh = RefreshToken.for_user(user)
     response_data = {
+        'status': 'success',
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
     return Response(response_data, status=status.HTTP_200_OK)
 
 
-
+@api_view(['GET'])
 def top_books_by_category(request, category):
-    books = Book.objects.filter(category = category).order_by('-rating')[:5]
+    books = Book.objects.filter(ISBN = category)[:10]
     data = {
         'category': category,
         'books': [
-            {'title': book.title,
-             'author': book.author,
-             'publication_date': book.publication_date,
-             'rating': book.rating
+            {'title': book.Book_Title,
+             'author': book.Book_Author,
+             'publication_year': book.Year_Of_Publication,
+            'publisher': book.Publisher,
+            'image_urls': [book.Image_URL_S, book.Image_URL_M, book.Image_URL_L],
              } for book in books]
     }
     return JsonResponse(data)
+
+   
