@@ -6,6 +6,22 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from django.contrib.auth.models import User
+from datetime import datetime
+
+from django.http import HttpResponse
+
+@api_view(['GET'])
+def index(request):
+    now = datetime.now()
+    html = f'''
+    <html>
+        <body>
+            <h1>Hello from Vercel!</h1>
+            <p>The current time is { now }.</p>
+        </body>
+    </html>
+    '''
+    return HttpResponse(html)
 
 @api_view(['POST'])
 def signup(request):
