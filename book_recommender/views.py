@@ -28,11 +28,11 @@ def signup(request):
 
 @api_view(['POST'])
 def login(request):
-    email = request.data.get('email')
+    username = request.data.get('username')
     password = request.data.get('password')
-    user = User.objects.filter(email=email).first()
+    user = User.objects.filter(username=username).first()
     if user is None or not user.check_password(password):
-        return Response({'error': 'Invalid email or password.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
     refresh = RefreshToken.for_user(user)
     response_data = {
         'status': 'success',
@@ -44,7 +44,7 @@ def login(request):
 
 @api_view(['GET'])
 def top_books_by_category(request, category):
-    books = Book.objects.filter(ISBN = category)[:10]
+    books = Book.objects.filter(Category = category)[:10]
     data = {
         'category': category,
         'books': [
