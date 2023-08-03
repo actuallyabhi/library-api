@@ -57,4 +57,20 @@ def top_books_by_category(request, category):
     }
     return JsonResponse(data)
 
+# search api
+@api_view(['GET'])
+def search(request, query):
+    books = Book.objects.filter(Book_Title__icontains = query)[:10]
+    data = {
+        'query': query,
+        'books': [
+            {'title': book.Book_Title,
+             'author': book.Book_Author,
+             'publication_year': book.Year_Of_Publication,
+            'publisher': book.Publisher,
+            'image_urls': [book.Image_URL_S, book.Image_URL_M, book.Image_URL_L],
+             } for book in books]
+    }
+    return JsonResponse(data)
+
    
