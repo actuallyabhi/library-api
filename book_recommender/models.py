@@ -14,3 +14,10 @@ class Book(models.Model):
     class Meta:
         managed = False
         db_table = 'books'
+
+
+class Ratings(models.Model):
+    username = models.CharField(max_length=255, db_column="Username")
+    ISBN = models.CharField(max_length=25, db_column="ISBN", null=True, blank=True)
+    rating = models.IntegerField(db_column="Rating")
+    

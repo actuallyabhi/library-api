@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from book_recommender.views import top_books_by_category, signup, login, search
+from book_recommender.views import top_books_by_category, signup, login, search, add_rating
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/books_by_category/<str:category>', top_books_by_category, name='top_books_by_category'),
+    path('api/add_rating', add_rating, name='add_rating'),
     path('api/search/<str:query>', search, name='search'),
     path('api/signup', signup),
     path('api/login', login),

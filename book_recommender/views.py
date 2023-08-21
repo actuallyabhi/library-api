@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from .models import Book
+from .models import Book, Ratings
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -44,18 +44,21 @@ def login(request):
 
 @api_view(['GET'])
 def top_books_by_category(request, category):
-    books = Book.objects.filter(Category = category)[:10]
+    books = Book.objects.filter(Category=category)[:10]
     data = {
         'category': category,
         'books': [
-            {'title': book.Book_Title,
-             'author': book.Book_Author,
-             'publication_year': book.Year_Of_Publication,
-            'publisher': book.Publisher,
-            'image_urls': [book.Image_URL_S, book.Image_URL_M, book.Image_URL_L],
-             } for book in books]
+            {   'isbn': book.ISBN, 
+                'title': book.Book_Title,
+                'author': book.Book_Author,
+                'publication_year': book.Year_Of_Publication,
+                'publisher': book.Publisher,
+                'image_urls': [book.Image_URL_S, book.Image_URL_M, book.Image_URL_L],
+                'ratings': get_book_ratings(book.ISBN),
+            } for book in books]
     }
     return JsonResponse(data)
+
 
 # search api
 @api_view(['GET'])
@@ -64,13 +67,39 @@ def search(request, query):
     data = {
         'query': query,
         'books': [
-            {'title': book.Book_Title,
-             'author': book.Book_Author,
-             'publication_year': book.Year_Of_Publication,
-            'publisher': book.Publisher,
-            'image_urls': [book.Image_URL_S, book.Image_URL_M, book.Image_URL_L],
-             } for book in books]
+            {   'isbn': book.ISBN, 
+                'title': book.Book_Title,
+                'author': book.Book_Author,
+                'publication_year': book.Year_Of_Publication,
+                'publisher': book.Publisher,
+                'image_urls': [book.Image_URL_S, book.Image_URL_M, book.Image_URL_L],
+                'ratings': get_book_ratings(book.ISBN),
+            } for book in books]
     }
     return JsonResponse(data)
 
    
+@api_view(['POST'])
+def add_rating(request):
+    username = request.data.get('username')
+    isbn = request.data.get('isbn')
+    rating = request.data.get('rating')
+    user = User.objects.filter(username=username).first()
+    book = Book.objects.filter(ISBN=isbn).first().ISBN
+    if user is None or book is None:
+        return Response({'error': 'Invalid username or book.'}, status=status.HTTP_400_BAD_REQUEST)
+    rating = Ratings.objects.create(username=user, ISBN=book, rating=rating)
+    return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
+
+def get_book_ratings(isbn):
+    ratings = Ratings.objects.filter(ISBN=isbn)
+    total_ratings = 0
+    num_ratings = 0
+    for rating in ratings:
+        total_ratings += rating.rating
+        num_ratings += 1
+    average_rating = total_ratings / num_ratings if num_ratings > 0 else 0
+    return {
+        'num_ratings': num_ratings,
+        'average_rating': average_rating,
+    }
